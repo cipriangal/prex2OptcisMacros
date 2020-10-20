@@ -98,9 +98,9 @@ void drawPhiSliceSim(string fin="sand.lst", bool pinchSeptum=true, double pinch=
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
   p[0]->GetYaxis()->SetRangeUser(0,max*1.2);
-  p[0]->DrawCopy("hist && c");
+  p[0]->DrawCopy("hist");
   for(int i =1;i<nSlice;i++)
-    p[i]->DrawCopy("same&&hist&&c");
+    p[i]->DrawCopy("same&&hist");
   gPad->BuildLegend();
 }
 
