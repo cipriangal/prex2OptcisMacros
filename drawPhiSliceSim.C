@@ -25,7 +25,7 @@ double theta0 = angle * deg2rad;
 
 void SetTree(TTree* tree);
 
-void drawPhiSliceSim(string fin="sand.lst")
+void drawPhiSliceSim(string fin="sand.lst", double pinch=0.0)
 {
 
   const int nSlice=8;
@@ -58,6 +58,13 @@ void drawPhiSliceSim(string fin="sand.lst")
     
     if(CollimatorL(xcol, ycol) && xcol != -333
        && th_ztarg_tr!=-333 && ph_ztarg_tr!=-333){
+
+      double pinchscan = pinch/1000;
+      bool scsvdn = DownPlane(thisxd1,thisyd1,thisxd2,thisyd2,
+			 thisxd3-pinchscan,thisyd3,thisxd4-pinchscan,thisyd4,
+			 thisxd5,thisyd5,
+			 thisxd6,thisyd6,thisxd7,thisyd7,thisxd8,thisyd8,thisxd9,thisyd9,1);
+      if(!scsvdn) continue;
 
       int found=-2;
       for(int i=0;i<nSlice && found==-2;i++){
