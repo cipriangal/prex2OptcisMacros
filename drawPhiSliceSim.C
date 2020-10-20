@@ -60,10 +60,10 @@ void drawPhiSliceSim(string fin="sand.lst", double pinch=0.0)
        && th_ztarg_tr!=-333 && ph_ztarg_tr!=-333){
 
       double pinchscan = pinch/1000;
-      bool scsvdn = DownPlane(thisxd1,thisyd1,thisxd2,thisyd2,
-			 thisxd3-pinchscan,thisyd3,thisxd4-pinchscan,thisyd4,
-			 thisxd5,thisyd5,
-			 thisxd6,thisyd6,thisxd7,thisyd7,thisxd8,thisyd8,thisxd9,thisyd9,1);
+      bool scsvdn = DownPlane(xd1,yd1,xd2,yd2,
+			      xd3-pinchscan,yd3,xd4-pinchscan,yd4,
+			      xd5,yd5,
+			      xd6,yd6,xd7,yd7,xd8,yd8,xd9,yd9,1);
       if(!scsvdn) continue;
 
       int found=-2;
