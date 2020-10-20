@@ -25,7 +25,7 @@ double theta0 = angle * deg2rad;
 
 void SetTree(TTree* tree);
 
-void drawPhiSliceSim(string fin="sand.lst", double pinch=0.0)
+void drawPhiSliceSim(string fin="sand.lst", bool pinchSeptum=true, double pinch=0.0)
 {
 
   const int nSlice=8;
@@ -64,7 +64,7 @@ void drawPhiSliceSim(string fin="sand.lst", double pinch=0.0)
 			      xd3-pinchscan,yd3,xd4-pinchscan,yd4,
 			      xd5,yd5,
 			      xd6,yd6,xd7,yd7,xd8,yd8,xd9,yd9,1);
-      if(!scsvdn) continue;
+      if(!scsvdn && pinchSeptum) continue;
 
       int found=-2;
       for(int i=0;i<nSlice && found==-2;i++){
@@ -98,9 +98,9 @@ void drawPhiSliceSim(string fin="sand.lst", double pinch=0.0)
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
   p[0]->GetYaxis()->SetRangeUser(0,max*1.2);
-  p[0]->DrawCopy("h");
+  p[0]->DrawCopy("hist && c");
   for(int i =1;i<nSlice;i++)
-    p[i]->DrawCopy("same&&h");
+    p[i]->DrawCopy("same&&hist&&c");
   gPad->BuildLegend();
 }
 
