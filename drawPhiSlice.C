@@ -16,7 +16,7 @@ void drawPhiSlice(string fnm){
   c2->cd(1);
   t->Draw(Form("%s.tr.th:%s.tr.ph",arm.c_str(),arm.c_str()),Form("abs(%s.tr.ph)<0.03 && abs(%s.tr.th)<0.05",arm.c_str(),arm.c_str()),"colz");
 
-  c1->cd(2);
+  c2->cd(2);
   int nColors = gStyle->GetNumberOfColors();
 
   const int nStep=8;
@@ -55,13 +55,8 @@ void drawPhiSlice(string fnm){
 
   c1->cd(2);
 
-  //gStyle->SetPalette(kTemperatureMap);
-  //gStyle->SetPalette(kVisibleSpectrum);
-  int nColors = gStyle->GetNumberOfColors();
-
-  const int nStep=8;
   TH1D *h[nStep];
-  float max = 0;
+  max = 0;
   for(int i=0;i<nStep;i++){
     int histoColor = (float)nColors/nStep * i;
 
