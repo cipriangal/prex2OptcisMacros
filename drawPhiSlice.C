@@ -25,8 +25,8 @@ void drawPhiSlice(string fnm){
   for(int i=0;i<nStep;i++){
     int histoColor = (float)nColors/nStep * i;
 
-    double low = -0.03 + i*0.04/nStep;
-    double hig = -0.03 + (i+1)*0.04/nStep;
+    double low = -0.03 + i*0.05/nStep;
+    double hig = -0.03 + (i+1)*0.05/nStep;
     hV[i]=new TH1D(Form("hV%d",i),Form("%6.3f  < #phi < %6.3f; theta",low,hig),
 		  100,-0.05,0.05);
     t->Project(Form("hV%d",i),Form("%s.tr.th",arm.c_str()),
