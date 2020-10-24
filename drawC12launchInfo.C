@@ -28,19 +28,26 @@ void SetTree(TTree* tree);
 void drawC12launchInfo(string fin="sand.lst", bool pinchSeptum=false, double pinch=0.0)
 {
 
-  TH1D *hvz[2], *hLth[2], *hLph[2],*hThTg[2], *hQ2[2];
+  TH1D *hvz[2], *hLth[2], *hLph[2],*hThSep[2],*hPhSep[2],*hQ2[2];
+  TH1D *hDotVS[2],*hDotBV[2];
   string hnm[2]={"US","DS"};
   for(int i=0;i<2;i++){
     hvz[i]=new TH1D(Form("hvz_%s",hnm[i].c_str()),Form("%s; vertex z [mm]",hnm[i].c_str())
 		    ,120,-0.6,0.6);
     hLth[i]=new TH1D(Form("hLth_%s",hnm[i].c_str()),Form("%s launch; theta [deg]",hnm[i].c_str())
-		     ,100,0,10);
+		     ,100,2,8);
     hLph[i]=new TH1D(Form("hLph_%s",hnm[i].c_str()),Form("%s launch; phi [deg]",hnm[i].c_str())
 		     ,180,-90,90);
-    hThTg[i]=new TH1D(Form("hThTg_%s",hnm[i].c_str()),Form("%s target; theta [deg]",hnm[i].c_str())
-		      ,100,0,10);
+    hThSep[i]=new TH1D(Form("hThSep_%s",hnm[i].c_str()),Form("%s septum entrance; theta [deg]",hnm[i].c_str())
+		       ,100,2,8);
+    hPhSep[i]=new TH1D(Form("hPhSep_%s",hnm[i].c_str()),Form("%s septum entrance; theta [deg]",hnm[i].c_str())
+		       ,180,-90,90);
     hQ2[i]=new TH1D(Form("hQ2_%s",hnm[i].c_str()),Form("%s; Q2 (GeV/c)^2",hnm[i].c_str())
-		    ,200,0,0.01);
+		    ,200,0,0.015);
+    hDotVS[i]=new TH1D(Form("hDotVS_%s",hnm[i].c_str()),Form("%s VS;cos(angle)",hnm[i].c_str())
+		       ,200,0.995,1.0001);
+    hDotBV[i]=new TH1D(Form("hDotBV_%s",hnm[i].c_str()),Form("%s BV;cos(angle)",hnm[i].c_str())
+		       ,200,0.995,1.0001);
   }
 
   TChain* T = new TChain("T","T");
@@ -62,7 +69,8 @@ void drawC12launchInfo(string fin="sand.lst", bool pinchSeptum=false, double pin
     double th_vtx = acos(costh0);
     
     if(CollimatorL(xcol, ycol) && xcol != -333
-       && th_ztarg_tr!=-333 && ph_ztarg_tr!=-333){
+       && th_ztarg_tr!=-333 && ph_ztarg_tr!=-333 && 
+       nuclA==12 && p_sen!=-333){
 
       double pinchscan = pinch/1000;
       bool scsvdn = DownPlane(xd1,yd1,xd2,yd2,
@@ -70,40 +78,100 @@ void drawC12launchInfo(string fin="sand.lst", bool pinchSeptum=false, double pin
 			      xd5,yd5,
 			      xd6,yd6,xd7,yd7,xd8,yd8,xd9,yd9,1);
       if(!scsvdn && pinchSeptum) continue;
-
+      rate /=nfiles;
+      
       int ud=0;
       if(vz>0) ud=1;
-      hvz[ud]->Fill(vz,rate);
+      hvz[ud]->Fill(vz*1000,rate);
       TVector3 mom(px,py,pz);
+
       hLth[ud]->Fill(mom.Theta()*rad2deg,rate);
       hLph[ud]->Fill(mom.Phi()*rad2deg,rate);
-      hThTg[ud]->Fill(th_tg,rate);
+      hThSep[ud]->Fill(th_sen*rad2deg,rate);
+      hPhSep[ud]->Fill(ph_sen*rad2deg,rate);
       hQ2[ud]->Fill(Q2,rate);
+
+      TVector3 pos(vx,vy,8+vz);
+      //takes the raster into account
+      TVector3 beam=pos.Unit();
+
+      // pre-vertex with MS and raster taken into account
+      TVector3 preVbeam(0,0,1);
+      preVbeam.SetPhi(b_ph*deg2rad);
+      preVbeam.SetTheta(b_th);
+      
+
+      TVector3 momSeptum(1,0,0);
+      momSeptum.SetMag(p_sen);
+      momSeptum.SetPhi(ph_sen);
+      momSeptum.SetTheta(th_sen);
+      hDotVS[ud]->Fill(mom*momSeptum/(mom.Mag()*momSeptum.Mag()),rate);
+      hDotBV[ud]->Fill(beam*preVbeam/(beam.Mag()*preVbeam.Mag()),rate);
     }
   }
 
-  TCanvas *c2 = new TCanvas("c2", "c2");
-  c2->Divide(2);
-  c2->cd(1);
-  tp->DrawCopy("colz");
-  c2->cd(2);
-  int nCls = gStyle->GetNumberOfColors();
-  float max=0;
-  for(int i=0;i<nSlice;i++){
-    int hCl = (float)nCls/nSlice * i;
-    
-    p[i] -> SetLineWidth(3);
-    p[i] -> SetLineColor(gStyle->GetColorPalette(hCl));
-    if(max<p[i]->GetMaximum()) max = p[i]->GetMaximum();
-  }
+  hvz[1]->SetLineColor(2);
+  hLth[1]->SetLineColor(2);
+  hThSep[1]->SetLineColor(2);
+  hPhSep[1]->SetLineColor(2);
+  hLph[1]->SetLineColor(2);
+  hQ2[1]->SetLineColor(2);
+  hDotVS[1]->SetLineColor(2);
+  hDotBV[1]->SetLineColor(2);
 
-  gStyle->SetOptStat(0);
-  gStyle->SetOptTitle(0);
-  p[0]->GetYaxis()->SetRangeUser(0,max*1.2);
-  p[0]->DrawCopy("hist");
-  for(int i =1;i<nSlice;i++)
-    p[i]->DrawCopy("same&&hist");
+  TCanvas *c2 = new TCanvas("c2", "c2");
+  c2->Divide(2,2);
+  c2->cd(1);
+  hvz[0]->DrawCopy("hist");
+  hvz[1]->DrawCopy("hist && samej");
   gPad->BuildLegend();
+  c2->cd(2);
+  hQ2[0]->DrawCopy("hist");
+  hQ2[1]->DrawCopy("hist && samej");
+  gPad->BuildLegend();
+  c2->cd(3);
+  hDotVS[1]->DrawCopy("hist");
+  hDotVS[0]->DrawCopy("hist && same");
+  gPad->SetLogy(1);
+  gPad->BuildLegend();
+  c2->cd(4);
+  hDotBV[1]->DrawCopy("hist");
+  hDotBV[0]->DrawCopy("hist && same");
+  gPad->SetLogy(1);
+  gPad->BuildLegend();
+
+  TCanvas *c1 = new TCanvas("c1", "c1");
+  c1->Divide(2,2);
+  c1->cd(1);
+  hLth[1]->DrawCopy("hist");
+  hLth[0]->DrawCopy("hist && samej");
+  gPad->BuildLegend();
+  c1->cd(2);
+  hThSep[0]->DrawCopy("hist");
+  hThSep[1]->DrawCopy("hist && samej");
+  gPad->BuildLegend();
+  c1->cd(3);
+  hLph[0]->DrawCopy("hist");
+  hLph[1]->DrawCopy("hist && samej");
+  gPad->BuildLegend();
+  c1->cd(4);
+  hPhSep[0]->DrawCopy("hist");
+  hPhSep[1]->DrawCopy("hist && samej");
+  gPad->BuildLegend();
+
+  TCanvas *c3=new TCanvas("c3","c3");
+  c3->Divide(2);
+  c3->cd(1);
+  hDotBV[1]->DrawCopy("hist");
+  hDotVS[0]->DrawCopy("hist&&same");
+  gPad->SetLogy(1);
+  gPad->BuildLegend();
+  c3->cd(2);
+  hDotBV[0]->DrawCopy("hist");
+  hDotVS[1]->DrawCopy("hist&&same");
+  gPad->SetLogy(1);
+  gPad->BuildLegend();
+
 }
 
 void SetTree(TTree* tree)
@@ -131,6 +199,13 @@ void SetTree(TTree* tree)
   tree->SetBranchAddress("ev.px",     &px);
   tree->SetBranchAddress("ev.py",     &py);
   tree->SetBranchAddress("ev.pz",     &pz);
+
+  tree->SetBranchAddress("bm.th",&b_th);
+  tree->SetBranchAddress("bm.ph",&b_ph);
+
+  tree->SetBranchAddress("th_sen", &th_sen);
+  tree->SetBranchAddress("ph_sen", &ph_sen);
+  tree->SetBranchAddress("p_sen", &p_sen);
 
   tree->SetBranchAddress("x_col_tr", &xcol);
   tree->SetBranchAddress("y_col_tr", &ycol);
