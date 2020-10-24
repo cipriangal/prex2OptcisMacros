@@ -13,6 +13,7 @@ double rate;
 double xs;
 double thcom, th, ph;
 double vx, vy, vz;
+double px, py, pz;
 int nuclA;
 int pid;
 double beamp;
@@ -24,6 +25,11 @@ double S;  // sensitivity
 double ep;
 
 double p_tg;
+
+double b_th,b_ph;
+
+//septum
+double th_sen, ph_sen, p_sen;
 
 // var used for cuts
 double xcol, ycol;
