@@ -30,6 +30,7 @@ void drawC12launchInfo(string fin="sand.lst", bool pinchSeptum=false, double pin
 
   TH1D *hvz[2], *hLth[2], *hLph[2],*hThSep[2],*hPhSep[2],*hQ2[2];
   TH1D *hDotVS[2],*hDotBV[2];
+  TH1D *hAngVS[2],*hAngBV[2];
   string hnm[2]={"US","DS"};
   for(int i=0;i<2;i++){
     hvz[i]=new TH1D(Form("hvz_%s",hnm[i].c_str()),Form("%s; vertex z [mm]",hnm[i].c_str())
@@ -48,6 +49,10 @@ void drawC12launchInfo(string fin="sand.lst", bool pinchSeptum=false, double pin
 		       ,200,0.995,1.0001);
     hDotBV[i]=new TH1D(Form("hDotBV_%s",hnm[i].c_str()),Form("%s BV;cos(angle)",hnm[i].c_str())
 		       ,200,0.995,1.0001);
+    hAngVS[i]=new TH1D(Form("hAngVS_%s",hnm[i].c_str()),Form("%s VS;angle",hnm[i].c_str())
+		       ,200,0,6);
+    hAngBV[i]=new TH1D(Form("hAngBV_%s",hnm[i].c_str()),Form("%s BV;angle",hnm[i].c_str())
+		       ,200,0,6);
   }
 
   TChain* T = new TChain("T","T");
@@ -107,6 +112,9 @@ void drawC12launchInfo(string fin="sand.lst", bool pinchSeptum=false, double pin
       momPostTgt.SetTheta(th_ztarg);
       hDotVS[ud]->Fill(mom*momPostTgt/(mom.Mag()*momPostTgt.Mag()),rate);
       hDotBV[ud]->Fill(beam*preVbeam/(beam.Mag()*preVbeam.Mag()),rate);
+
+      hAngVS[ud]->Fill(acos(mom*momPostTgt/(mom.Mag()*momPostTgt.Mag()))*rad2deg,rate);
+      hAngBV[ud]->Fill(acos(beam*preVbeam/(beam.Mag()*preVbeam.Mag()))*rad2deg,rate);
     }
   }
 
@@ -118,6 +126,8 @@ void drawC12launchInfo(string fin="sand.lst", bool pinchSeptum=false, double pin
   hQ2[1]->SetLineColor(2);
   hDotVS[1]->SetLineColor(2);
   hDotBV[1]->SetLineColor(2);
+  hAngVS[1]->SetLineColor(2);
+  hAngBV[1]->SetLineColor(2);
 
   TCanvas *c2 = new TCanvas("c2", "c2");
   c2->Divide(2,2);
@@ -160,7 +170,7 @@ void drawC12launchInfo(string fin="sand.lst", bool pinchSeptum=false, double pin
   gPad->BuildLegend();
 
   TCanvas *c3=new TCanvas("c3","c3");
-  c3->Divide(2);
+  c3->Divide(2,2);
   c3->cd(1);
   hDotBV[1]->DrawCopy("hist");
   hDotVS[0]->DrawCopy("hist&&same");
@@ -172,6 +182,20 @@ void drawC12launchInfo(string fin="sand.lst", bool pinchSeptum=false, double pin
   gPad->SetLogy(1);
   gPad->BuildLegend();
 
+  c3->cd(3);
+  hAngBV[1]->DrawCopy("hist");
+  hAngVS[0]->DrawCopy("hist&&same");
+  gPad->SetLogy(1);
+  gPad->BuildLegend();
+  c3->cd(4);
+  hAngBV[0]->DrawCopy("hist");
+  hAngVS[1]->DrawCopy("hist&&same");
+  gPad->SetLogy(1);
+  gPad->BuildLegend();
+
+  // auto *c4=new TCanvas();
+  // gStyle->SetOptStat(1);
+  // hAngBV[1]->DrawCopy("hist");
 }
 
 void SetTree(TTree* tree)
