@@ -38,9 +38,9 @@ void drawC12launchInfo(string fin="sand.lst", bool pinchSeptum=false, double pin
 		     ,100,2,8);
     hLph[i]=new TH1D(Form("hLph_%s",hnm[i].c_str()),Form("%s launch; phi [deg]",hnm[i].c_str())
 		     ,180,-90,90);
-    hThSep[i]=new TH1D(Form("hThSep_%s",hnm[i].c_str()),Form("%s septum entrance; theta [deg]",hnm[i].c_str())
+    hThSep[i]=new TH1D(Form("hThZtarg_%s",hnm[i].c_str()),Form("%s 1cm DS of tgt; theta [deg]",hnm[i].c_str())
 		       ,100,2,8);
-    hPhSep[i]=new TH1D(Form("hPhSep_%s",hnm[i].c_str()),Form("%s septum entrance; theta [deg]",hnm[i].c_str())
+    hPhSep[i]=new TH1D(Form("hPhZtarg_%s",hnm[i].c_str()),Form("%s 1cm DS of tgt; theta [deg]",hnm[i].c_str())
 		       ,180,-90,90);
     hQ2[i]=new TH1D(Form("hQ2_%s",hnm[i].c_str()),Form("%s; Q2 (GeV/c)^2",hnm[i].c_str())
 		    ,200,0,0.015);
@@ -87,8 +87,8 @@ void drawC12launchInfo(string fin="sand.lst", bool pinchSeptum=false, double pin
 
       hLth[ud]->Fill(mom.Theta()*rad2deg,rate);
       hLph[ud]->Fill(mom.Phi()*rad2deg,rate);
-      hThSep[ud]->Fill(th_sen*rad2deg,rate);
-      hPhSep[ud]->Fill(ph_sen*rad2deg,rate);
+      hThSep[ud]->Fill(th_ztarg*rad2deg,rate);
+      hPhSep[ud]->Fill(ph_ztarg*rad2deg,rate);
       hQ2[ud]->Fill(Q2,rate);
 
       TVector3 pos(vx,vy,8+vz);
@@ -101,11 +101,11 @@ void drawC12launchInfo(string fin="sand.lst", bool pinchSeptum=false, double pin
       preVbeam.SetTheta(b_th);
       
 
-      TVector3 momSeptum(1,0,0);
-      momSeptum.SetMag(p_sen);
-      momSeptum.SetPhi(ph_sen);
-      momSeptum.SetTheta(th_sen);
-      hDotVS[ud]->Fill(mom*momSeptum/(mom.Mag()*momSeptum.Mag()),rate);
+      TVector3 momPostTgt(1,0,0);
+      momPostTgt.SetMag(p_ztarg);
+      momPostTgt.SetPhi(ph_ztarg);
+      momPostTgt.SetTheta(th_ztarg);
+      hDotVS[ud]->Fill(mom*momPostTgt/(mom.Mag()*momPostTgt.Mag()),rate);
       hDotBV[ud]->Fill(beam*preVbeam/(beam.Mag()*preVbeam.Mag()),rate);
     }
   }
@@ -249,6 +249,10 @@ void SetTree(TTree* tree)
   tree->SetBranchAddress("p_ztarg_tr", &p_tg);
   tree->SetBranchAddress("ph_ztarg_tr", &ph_ztarg_tr);
   tree->SetBranchAddress("th_ztarg_tr", &th_ztarg_tr);
+
+  tree->SetBranchAddress("p_ztarg", &p_ztarg);
+  tree->SetBranchAddress("ph_ztarg", &ph_ztarg);
+  tree->SetBranchAddress("th_ztarg", &th_ztarg);
 
   tree->SetBranchAddress("p_q1en_tr", &p_q1en_tr);
   tree->SetBranchAddress("p_q1ex_tr", &p_q1ex_tr);
